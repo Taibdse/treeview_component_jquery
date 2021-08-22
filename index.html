@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tree view</title>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <!-- Optional theme -->
+  <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+    integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"> -->
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    .treelist {
+      list-style: none;
+      background-color: pink;
+      padding-left: 0;
+    }
+
+    .treelist ul {
+      list-style: none !important;
+    }
+
+    .treelist ul li {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .treelist ul li span.actions {
+      /* display: none; */
+
+    }
+
+    .treelist ul li:hover span.actions {
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Treeview Demo</h1>
+  <div class="custom" style="max-width: 500px;">
+    <ul class="treelist">
+      <li class="tree-item">
+        <i class="fa fa-folder-open" aria-hidden="true"></i>
+        <span>1</span>
+        <div class="treelist children" style="padding-left: 10px">
+          <div class="tree-item row bg-danger">
+            <div class="col-9">
+              <i class="fa fa-folder-open" aria-hidden="true"></i>
+              <span>4</span>
+            </div>
+            <div class="col-3 text-right">
+              <span class="actions">...</span>
+            </div>
+          </div>
+      <li class="tree-item">
+        <i class="fa fa-folder"></i>
+        <span>5</span>
+        <span class="actions">...</span>
+      </li>
+      <li class="tree-item">
+        <i class="fa fa-folder"></i>
+        <span>6</span>
+        <span class="actions">...</span>
+      </li>
+  </div>
+  </li>
+  <li class="tree-item">
+    <i class="fa fa-folder"></i>
+    <span>2</span>
+  </li>
+  <li class="tree-item">
+    <i class="fa fa-folder"></i>
+    <span>3</span>
+  </li>
+  </ul>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+  <!-- <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.1.0/bootstrap-treeview.min.js"></script> -->
+
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>
+
+  <script>
+    var tree = [
+      {
+        text: "Parent 1",
+        nodes: [
+          {
+            text: "Child 1",
+            nodes: [
+              {
+                text: "Grandchild 1"
+              },
+              {
+                text: "Grandchild 2"
+              }
+            ]
+          },
+          {
+            text: "Child 2"
+          }
+        ]
+      },
+      {
+        text: "Parent 2"
+      },
+      {
+        text: "Parent 3"
+      },
+      {
+        text: "Parent 4"
+      },
+      {
+        text: "Parent 5"
+      }
+    ];
+
+    // $('#tree').treeview({
+    //   data: tree,
+    //   icon: "glyphicon glyphicon-folder2",
+    //   color: 'black',
+    //   tags: ['available'],
+    // });
+  </script>
+
+</body>
+
+</html>
