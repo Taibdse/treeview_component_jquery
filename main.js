@@ -29,8 +29,8 @@ $.fn.extend({
         '<i class="fa fa-ellipsis-v"></i>' +
         '</span>' +
         '<ul class="dropdown-menu" id="dropdown">' +
-        '<li>Edit</li>' +
-        '<li>Delete</li>' +
+        '<li><i class="fa fa-edit"></i> Edit</li>' +
+        '<li><i class="fa fa-trash"></i> Delete</li>' +
         '</ul>' +
         '</div>';
 
@@ -44,8 +44,8 @@ $.fn.extend({
         var branch = $(this); //li with children ul
 
         var additionDropdownitems = '<li role="separator" class="divider"></li>' +
-          '<li>Add Sub-Folder</li>' +
-          '<li>Add Hyperlink Item</li>';
+          '<li><i class="fa fa-folder"></i> Add Sub-Folder</li>' +
+          '<li><i class="fa fa-link"></i> Add Hyperlink Item</li>';
         wrapper
           .prepend("<i class='indicator glyphicon " + closedClass + "'></i>")
           .find('ul.dropdown-menu').append(additionDropdownitems);
@@ -62,8 +62,13 @@ $.fn.extend({
       }
 
       wrapper.find('.dropdown-menu li').on('click', function () {
-        console.log('show modal')
-        $('#myModal').modal('show');
+        //  var isFolderBranch =  $(this).closest('li.tree-list-item').find(' > ul').length > 0;
+        // if (isFolderBranch) {
+        //   modal.find('.modal-title').text('')
+        // }
+        // var modal = $('#treeviewModal');
+
+        $('#treeviewModal').modal('show');
       })
     })
     //fire event from the dynamically added icon
