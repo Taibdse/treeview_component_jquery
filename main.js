@@ -234,13 +234,15 @@ $.fn.extend({
       var folderName = txtFolderName.val();
       var hyperLink = txtHyperLink.val();
       var linkTitle = txtLinkTitle.val();
-      var nodeElement = tree.find("li.tree-list-item[data-node-id='" + currentSubmisionData.nodeData.ID + "']");
+      var nodeData = currentSubmisionData.nodeData;
+      var actionType = currentSubmisionData.actionType;
+      var nodeElement = tree.find("li.tree-list-item[data-node-id='" + nodeData.ID + "']");
 
-      switch (currentSubmisionData.actionType) {
+      switch (actionType) {
         case TREEVIEW_ACTION_TYPES.EDIT_FOLDER:
           if (!folderName) return;
 
-          MODEL.updateFolderNode(currentSubmisionData.nodeData, folderName);
+          MODEL.updateFolderNode(nodeData, folderName);
 
           nodeElement.find('> div.wrapper span.node-title').text(folderName);
           showSuccessMsg({ title: 'Updated folder successfully!' });
@@ -255,7 +257,7 @@ $.fn.extend({
           }
 
           // update local data
-          var newNodeData = MODEL.addFolderNode(currentSubmisionData.nodeData, folderName);
+          var newNodeData = MODEL.addFolderNode(nodeData, folderName);
 
           //update node dom
           renderTreeBranch(newNodeData, childrenList, nodeData.children);
@@ -267,7 +269,7 @@ $.fn.extend({
         case TREEVIEW_ACTION_TYPES.EDIT_HYPER_LINK:
           if (!hyperLink || !linkTitle) return;
 
-          MODEL.updateHyperLinkNode(currentSubmisionData.nodeData, hyperLink, linkTitle);
+          MODEL.updateHyperLinkNode(nodeData, hyperLink, linkTitle);
 
           nodeElement.find('> div.wrapper a.node-title').text(linkTitle).attr({ href: hyperLink });
           showSuccessMsg({ title: 'Updated hyperlink successfully!' });
@@ -282,7 +284,7 @@ $.fn.extend({
           }
 
           // update local data
-          var newNodeData = MODEL.addHyperLinkNode(currentSubmisionData.nodeData, hyperLink, linkTitle);
+          var newNodeData = MODEL.addHyperLinkNode(nodeData, hyperLink, linkTitle);
 
           //update node dom
           renderTreeBranch(newNodeData, childrenList, nodeData.children);
