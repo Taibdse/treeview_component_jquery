@@ -1,29 +1,3 @@
-var TREEVIEW_ACTION_TYPES = {
-  EDIT_HYPER_LINK: 'EDIT_HYPER_LINK',
-  EDIT_FOLDER: 'EDIT_FOLDER',
-  ADD_SUB_FOLDER: 'ADD_SUB_FOLDER',
-  ADD_HYPER_LINK: 'ADD_HYPER_LINK'
-}
-
-function convertListToTree(list) {
-  var map = {}, roots = [], i;
-
-  for (i = 0; i < list.length; i += 1) {
-    map[list[i].ID] = i; // initialize the map
-    list[i].children = []; // initialize the children
-  }
-  for (i = 0; i < list.length; i += 1) {
-    let node = list[i];
-    if (node.ParentID && list[map[node.ParentID]]) {
-      list[map[node.ParentID]].children.push(node);
-    } else {
-      roots.push(node);
-    }
-  }
-  return roots;
-}
-
-
 $.fn.extend({
   treed: function (treeOptions) {
 
@@ -32,9 +6,15 @@ $.fn.extend({
     var treeData = [];
     var currentSubmisionData = {};
     var modal = $('#treeviewModal');
-    var txtFolderName = modal.find('#txtFolderName');
-    var txtLinkTitle = modal.find('#txtLinkTitle');
-    var txtHyperLink = modal.find('#txtHyperLink');
+
+    var itemDetailsForm = modal.find('#itemDetailsForm');
+    var txtFolderName = itemDetailsForm.find('#txtFolderName');
+    var txtLinkTitle = itemDetailsForm.find('#txtLinkTitle');
+    var txtHyperLink = itemDetailsForm.find('#txtHyperLink');
+
+    var shareForm = modal.find('#shareForm');
+    var txtShareRecipient = shareForm.find('#txtShareRecipient');
+    var txtShareContent = shareForm.find('#txtShareContent');
 
     if (!treeOptions) treeOptions = {};
 
@@ -45,7 +25,7 @@ $.fn.extend({
       closedClass = treeOptions.closedClass;
     }
 
-    if (treeOptions.data) treeData = convertListToTree(treeOptions.data);
+    if (treeOptions.data) treeData = TreeUtils.convertListToTree(treeOptions.data);
 
     //initialize each of the top levels
     var tree = $(this);
@@ -100,54 +80,90 @@ $.fn.extend({
       }
     }
 
+    function getShareLink(nodeData) {
+      if (!nodeData.IsFolder) return nodeData.HyperLink;
+      var rootUrl = location.origin + location.pathname;
+      if (rootUrl[rootUrl.length - 1] === '/') rootUrl = rootUrl.substring(0, rootUrl.length - 1);
+      return rootUrl + '?expand=folder&folderid=' + nodeData.ID;
+    }
+
     function showModal(nodeData, actionType) {
-      //set modal title
-      var modalTitle = [TREEVIEW_ACTION_TYPES.ADD_HYPER_LINK, TREEVIEW_ACTION_TYPES.ADD_SUB_FOLDER].includes(actionType) ? 'New' : 'Edit ' + nodeData.Title;
-      var focusElement;
-      modal.find('.modal-title').text(modalTitle);
+      var focusedElement;
+      var modalTitle;
 
-      //set input value, show/hide
-      if ([TREEVIEW_ACTION_TYPES.EDIT_FOLDER, TREEVIEW_ACTION_TYPES.ADD_SUB_FOLDER].includes(actionType)) {
-        txtFolderName.closest('.form-group').show();
-        txtLinkTitle.closest('.form-group').hide();
-        txtHyperLink.closest('.form-group').hide();
+      if (actionType === TREEVIEW_ACTION_TYPES.SHARE_ITEM) {
+        shareForm.show();
+        itemDetailsForm.hide();
+        txtShareContent.val('');
+        txtShareRecipient.val('');
 
-        var folderName = actionType === TREEVIEW_ACTION_TYPES.EDIT_FOLDER ? nodeData.Title : '';
-        txtFolderName.val(folderName).focus();
-        focusElement = txtFolderName;
+        modalTitle = 'Share ' + (nodeData.IsFolder ? 'Folder' : 'HyperLink');
+        focusedElement = txtShareRecipient;
       } else {
-        txtFolderName.closest('.form-group').hide();
-        txtLinkTitle.focus().closest('.form-group').show();
-        txtHyperLink.closest('.form-group').show();
+        shareForm.hide();
+        itemDetailsForm.show();
 
-        var linkTitle = actionType === TREEVIEW_ACTION_TYPES.EDIT_HYPER_LINK ? nodeData.Title : '';
-        var hyperLink = actionType === TREEVIEW_ACTION_TYPES.EDIT_HYPER_LINK ? nodeData.HyperLink : '';
-        txtLinkTitle.val(linkTitle);
-        txtHyperLink.val(hyperLink);
-        focusElement = txtLinkTitle;
+        // set modal title
+        modalTitle = [TREEVIEW_ACTION_TYPES.ADD_HYPER_LINK, TREEVIEW_ACTION_TYPES.ADD_SUB_FOLDER].includes(actionType) ? 'New' : 'Edit ' + nodeData.Title;
+
+        //set input value, show/hide
+        if ([TREEVIEW_ACTION_TYPES.EDIT_FOLDER, TREEVIEW_ACTION_TYPES.ADD_SUB_FOLDER].includes(actionType)) {
+          txtFolderName.closest('.form-group').show();
+          txtLinkTitle.closest('.form-group').hide();
+          txtHyperLink.closest('.form-group').hide();
+
+          var folderName = actionType === TREEVIEW_ACTION_TYPES.EDIT_FOLDER ? nodeData.Title : '';
+          txtFolderName.val(folderName).focus();
+          focusedElement = txtFolderName;
+        } else {
+          txtFolderName.closest('.form-group').hide();
+          txtLinkTitle.focus().closest('.form-group').show();
+          txtHyperLink.closest('.form-group').show();
+
+          var linkTitle = actionType === TREEVIEW_ACTION_TYPES.EDIT_HYPER_LINK ? nodeData.Title : '';
+          var hyperLink = actionType === TREEVIEW_ACTION_TYPES.EDIT_HYPER_LINK ? nodeData.HyperLink : '';
+          txtLinkTitle.val(linkTitle);
+          txtHyperLink.val(hyperLink);
+          focusedElement = txtLinkTitle;
+        }
       }
 
       // save form data
       currentSubmisionData.actionType = actionType;
       currentSubmisionData.nodeData = nodeData;
 
+      //render modal title
+      modal.find('.modal-title').text(modalTitle);
+
       // focus input when open modal
       modal.on('shown.bs.modal', function () {
-        focusElement.focus();
+        focusedElement.focus();
       });
 
       //show modal
       modal.modal('show');
-
     }
 
     function hideModal() {
       modal.modal('hide');
     }
 
-    function toggleIcon(icon, open) {
-      if (open) icon.removeClass(closedClass).addClass(openedClass);
-      else icon.removeClass(openedClass).addClass(closedClass)
+    function toggleExpandFolder(node, open) {
+      var icon = node.find('> .wrapper i.indicator');
+      var childrenListNode = node.children('ul.tree-list');
+
+      if (typeof open === 'boolean') {
+        if (open) {
+          icon.removeClass(closedClass).addClass(openedClass);
+          childrenListNode.slideDown();
+        } else {
+          icon.removeClass(openedClass).addClass(closedClass);
+          childrenListNode.slideUp();
+        }
+      } else {
+        icon.toggleClass(openedClass + " " + closedClass);
+        childrenListNode.slideToggle();
+      }
     }
 
     function renderTreeBranch(nodeData, nodeListElement, nodeListData) {
@@ -170,6 +186,7 @@ $.fn.extend({
         '<ul class="dropdown-menu" id="dropdown">' +
         '<li class="edit-item"><i class="fa fa-edit"></i> Edit</li>' +
         '<li class="delete-item"><i class="fa fa-trash"></i> Delete</li>' +
+        '<li class="share-item"><i class="fa fa-share"></i> Share</li>' +
         '</ul>' +
         '</div>';
 
@@ -181,6 +198,9 @@ $.fn.extend({
 
       wrapper.find('.dropdown-menu .edit-item').on('click', function (e) {
         showModal(nodeData, nodeData.IsFolder ? TREEVIEW_ACTION_TYPES.EDIT_FOLDER : TREEVIEW_ACTION_TYPES.EDIT_HYPER_LINK);
+      });
+      wrapper.find('.dropdown-menu .share-item').on('click', function (e) {
+        showModal(nodeData, TREEVIEW_ACTION_TYPES.SHARE_ITEM);
       });
 
       wrapper.find('.dropdown-menu .delete-item').on('click', function (e) {
@@ -202,9 +222,7 @@ $.fn.extend({
 
         wrapper.on('click', function (e) {
           if ($(e.target).closest('.dropdown').length === 0) { // except actions dropdown click 
-            var icon = wrapper.children('i.indicator');
-            icon.toggleClass(openedClass + " " + closedClass);
-            li.children('ul.tree-list').toggle();
+            toggleExpandFolder(li);
           }
         });
 
@@ -229,7 +247,7 @@ $.fn.extend({
     }
 
     // submit form on tree view modal
-    function handleSubmitTreeModalForm(e) {
+    function handleSubmitItemDetailsForm(e) {
       e.preventDefault();
       var folderName = txtFolderName.val();
       var hyperLink = txtHyperLink.val();
@@ -254,15 +272,15 @@ $.fn.extend({
           var childrenList = nodeElement.find('> ul.tree-list');
           if (childrenList.length === 0) { // folder empty
             childrenList = $('<ul class="tree-list"></ul>');
+            nodeElement.append(childrenList);
           }
 
           // update local data
           var newNodeData = MODEL.addFolderNode(nodeData, folderName);
 
-          //update node dom
+          // update node dom
           renderTreeBranch(newNodeData, childrenList, nodeData.children);
-          childrenList.show();
-          toggleIcon(nodeElement.find('> div.wrapper i.indicator'), true);
+          toggleExpandFolder(nodeElement, true);
           showSuccessMsg({ title: 'Added sub-folder successfully!' });
           hideModal();
           break;
@@ -286,13 +304,36 @@ $.fn.extend({
           // update local data
           var newNodeData = MODEL.addHyperLinkNode(nodeData, hyperLink, linkTitle);
 
-          //update node dom
+          // update node dom
           renderTreeBranch(newNodeData, childrenList, nodeData.children);
-          childrenList.show();
-          toggleIcon(nodeElement.find('i.indicator'), true);
+          toggleExpandFolder(nodeElement, true);
           showSuccessMsg({ title: 'Added hyperlink successfully!' });
           hideModal();
           break;
+      }
+    }
+
+    function handleSubmitShareForm(e) {
+      e.preventDefault();
+      var nodeData = currentSubmisionData.nodeData;
+
+      var shareRecipient = txtShareRecipient.val();
+      var shareContent = txtShareContent.val();
+      var shareLink = getShareLink(nodeData);
+      alert('Handle Share');
+      hideModal();
+    }
+
+    function expandShareFolder() {
+      var expand = UrlUtils.getParameterByName('expand');
+      var folderId = UrlUtils.getParameterByName('folderid');
+
+      if (expand === NODE_TYPES.FOLDER) {
+        var folderNode = tree.find("li.tree-list-item[data-node-id='" + folderId + "']");
+        folderNode.parents('li.tree-list-item').each(function (idx, ele) {
+          toggleExpandFolder($(ele), true);
+        })
+        toggleExpandFolder(folderNode, true);
       }
     }
 
@@ -302,7 +343,10 @@ $.fn.extend({
       renderTreeBranch(nodeData, tree, treeData);
     }
 
-    $('#treeviewModalForm').on('submit', handleSubmitTreeModalForm);
+    itemDetailsForm.on('submit', handleSubmitItemDetailsForm);
+    shareForm.on('submit', handleSubmitShareForm);
+
+    expandShareFolder();
   }
 });
 
