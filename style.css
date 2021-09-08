@@ -18,6 +18,7 @@
   left: 13px;
   border-left: 1px dashed;
 }
+
 .tree li.tree-list-item {
   margin: 0;
   padding: 0 1.9em;
@@ -25,6 +26,10 @@
   line-height: 3em;
   position: relative;
   cursor: pointer;
+}
+
+.tree > li.tree-list-item {
+  padding-left: 0;
 }
 
 .tree ul.tree-list li.tree-list-item:before {
