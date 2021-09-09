@@ -8,10 +8,10 @@ $.fn.extend({
 
     var modal = $('#treeviewModal');
 
-    var itemDetailsForm = modal.find('#itemDetailsForm');
-    var txtFolderName = itemDetailsForm.find('#txtFolderName');
-    var txtLinkTitle = itemDetailsForm.find('#txtLinkTitle');
-    var txtHyperLink = itemDetailsForm.find('#txtHyperLink');
+    var nodeDetailsForm = modal.find('#itemDetailsForm');
+    var txtFolderName = nodeDetailsForm.find('#txtFolderName');
+    var txtLinkTitle = nodeDetailsForm.find('#txtLinkTitle');
+    var txtHyperLink = nodeDetailsForm.find('#txtHyperLink');
 
     var shareForm = modal.find('#shareForm');
     var txtShareRecipient = shareForm.find('#txtShareRecipient');
@@ -205,7 +205,7 @@ $.fn.extend({
 
         if (actionType === TREEVIEW_ACTION_TYPES.SHARE_ITEM) {
           shareForm.show();
-          itemDetailsForm.hide();
+          nodeDetailsForm.hide();
           txtShareContent.val('');
           txtShareRecipient.val('');
 
@@ -213,7 +213,7 @@ $.fn.extend({
           focusedElement = txtShareRecipient;
         } else {
           shareForm.hide();
-          itemDetailsForm.show();
+          nodeDetailsForm.show();
 
           // set modal title
           modalTitle = [TREEVIEW_ACTION_TYPES.ADD_HYPER_LINK, TREEVIEW_ACTION_TYPES.ADD_SUB_FOLDER].includes(actionType) ? 'New' : 'Edit ' + nodeData.Title;
@@ -412,7 +412,7 @@ $.fn.extend({
       },
 
       bindEvents: function () {
-        itemDetailsForm.on('submit', handleSubmitItemDetailsForm);
+        nodeDetailsForm.on('submit', handleSubmitItemDetailsForm);
 
         shareForm.on('submit', handleSubmitShareForm);
       }
