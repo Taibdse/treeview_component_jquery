@@ -151,6 +151,15 @@ $.fn.extend({
         return newNodeData;
       },
 
+      addChildrenNodeData: function (parentNodeId, childrenNodeData) {
+        var parentNodeData = this.findNodeById(this.treeData, parentNodeId);
+        childrenNodeData.forEach(function (nodeData) {
+          nodeData.children = [];
+          parentNodeData.children.push(nodeData);
+        })
+        return parentNodeData;
+      },
+
       addHyperLinkNode: function (parentNodeId, hyperLink, linkTitle) {
         var parentNodeData = this.findNodeById(this.treeData, parentNodeId);
         var newNodeData = {
@@ -337,6 +346,11 @@ $.fn.extend({
 
           wrapper.on('click', function (e) {
             if ($(e.target).closest('.dropdown').length === 0) { // except actions dropdown click 
+              if (nodeData.children.length === 0) {
+                var childrenNodeData = getChildrenNodeData(nodeData);
+                var parentNodeData = MODEL.addChildrenNodeData(nodeData.ID, childrenNodeData);
+                view.renderChildrenListToFolderNode(li, parentNodeData.children);
+              }
               view.toggleExpandFolder(li);
             }
           });
@@ -355,6 +369,18 @@ $.fn.extend({
             view.renderTreeBranch(nodeData.children[i], childrenNodeList, autoExpand);
           }
           if (autoExpand) view.toggleExpandFolder(li, true);
+        }
+      },
+
+      renderChildrenListToFolderNode: function (nodeFolder, childrenListData) {
+        var view = this;
+        for (var i = 0; i < childrenListData.length; i++) {
+          var childrenNodeList = nodeFolder.find('> ul.tree-list');
+          if (childrenNodeList.length === 0) {
+            childrenNodeList = $('<ul class="tree-list"></ul>');
+            nodeFolder.append(childrenNodeList);
+          }
+          view.renderTreeBranch(childrenListData[i], childrenNodeList, false);
         }
       },
 
@@ -428,51 +454,80 @@ var data = [
     HyperLink: null,
     Parent: {},
   },
-  {
-    ID: 4,
-    Title: 'Folder 4',
-    IsFolder: true,
-    ParentID: 2,
-    HyperLink: null,
-    Parent: {
-      ID: 2,
-      Title: 'Folder 2'
-    },
-  },
-  {
-    ID: 5,
-    Title: 'Guide to connect via OpenVPN',
-    IsFolder: false,
-    ParentID: 2,
-    HyperLink: 'https://google.com',
-    Parent: {
-      ID: 2,
-      Title: 'Folder 2'
-    },
-  },
-  {
-    ID: 6,
-    Title: 'Access System via web',
-    IsFolder: false,
-    ParentID: 4,
-    HyperLink: 'https://google.com',
-    Parent: {
-      ID: 4,
-      Title: 'Folder 4'
-    },
-  },
-  {
-    ID: 7,
-    Title: 'Access System via desktop app',
-    IsFolder: false,
-    ParentID: 3,
-    HyperLink: 'https://google.com',
-    Parent: {
-      ID: 3,
-      Title: 'Folder 3'
-    },
-  },
+  // {
+  //   ID: 4,
+  //   Title: 'Folder 4',
+  //   IsFolder: true,
+  //   ParentID: 2,
+  //   HyperLink: null,
+  //   Parent: {
+  //     ID: 2,
+  //     Title: 'Folder 2'
+  //   },
+  // },
+  // {
+  //   ID: 5,
+  //   Title: 'Guide to connect via OpenVPN',
+  //   IsFolder: false,
+  //   ParentID: 2,
+  //   HyperLink: 'https://google.com',
+  //   Parent: {
+  //     ID: 2,
+  //     Title: 'Folder 2'
+  //   },
+  // },
+  // {
+  //   ID: 6,
+  //   Title: 'Access System via web',
+  //   IsFolder: false,
+  //   ParentID: 4,
+  //   HyperLink: 'https://google.com',
+  //   Parent: {
+  //     ID: 4,
+  //     Title: 'Folder 4'
+  //   },
+  // },
+  // {
+  //   ID: 7,
+  //   Title: 'Access System via desktop app',
+  //   IsFolder: false,
+  //   ParentID: 3,
+  //   HyperLink: 'https://google.com',
+  //   Parent: {
+  //     ID: 3,
+  //     Title: 'Folder 3'
+  //   },
+  // },
 ];
+
+function getChildrenNodeData(parentNodeData) {
+  var loadedChildrenData = [
+    {
+      ID: Math.random(),
+      Title: Math.random(),
+      IsFolder: true,
+      ParentID: parentNodeData.ID,
+      HyperLink: null,
+      Parent: {
+        ID: parentNodeData.ID,
+        Title: parentNodeData.Title
+      },
+    },
+    {
+      ID: Math.random(),
+      Title: Math.random(),
+      IsFolder: false,
+      ParentID: parentNodeData.ID,
+      HyperLink: 'https://google.com',
+      Parent: {
+        ID: parentNodeData.ID,
+        Title: parentNodeData.Title
+      },
+    },
+  ];
+  return loadedChildrenData;
+}
+
 
 //Initialization of treeviews
 $('#treeview').treed({
